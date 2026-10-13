@@ -1,0 +1,46 @@
+body {
+     font-family: Georgia, serif;
+     background: #12100e;
+     color: #f2ece4;
+     max-width: 1100px;
+     margin: 0 auto;
+     padding: 1rem;
+}
+
+form {
+     display: flex;
+     gap: .5rem;
+}
+
+input {
+     flex: 1;
+     padding: .5rem;
+}
+
+article {
+     background: #1d1a17;
+     padding: .5rem;
+     border-radius: 6px;
+}
+
+img {
+     width: 100%;
+     aspect-ratio: 4 / 5;
+     object-fit: cover;
+}
+
+h3 {
+     font-size: 1rem;
+     margin: .5rem 0 .2rem;
+}
+
+p { 
+     color: #a39a8f;
+     margin: 0;
+}
+
+#gallery {
+     display: grid;
+     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+     gap: 1rem;
+}
