@@ -5,7 +5,7 @@ import type { Artwork } from "./logic";
 import { showLoading, showError, showWarning, showArtworks, fillTypeOptions, setMoreButton, renderRooms } from "./render";
 import type { Room } from "./render";
 import { getFavorites, toggleFavorite } from "./favorites";
-import { renderCollage } from "./collage";
+import { renderCollage, saveCollage } from "./collage";
 
 const form = document.querySelector<HTMLFormElement>("#form")!;
 const input = document.querySelector<HTMLInputElement>("#input")!;
@@ -133,5 +133,6 @@ openCollageButton.addEventListener("click", () => {
      collageDialog.showModal();
 });
 closeCollageButton.addEventListener("click", () => collageDialog?.close())
+collageDialog.addEventListener("close", saveCollage);
 
 load("monet");
