@@ -1,5 +1,6 @@
 import type { Artwork } from "./logic";
 import { getCache, setCache } from "./cache";
+import { getElement } from "./dom";
 
 // TIPOS Y CONSTANTES
 interface PieceLayout {
@@ -126,9 +127,7 @@ function isOnResizeCorner(piece: HTMLElement, evento: PointerEvent): boolean {
 
 // UTILIDADES
 function getBoard(): HTMLDivElement {
-     const board = document.querySelector<HTMLDivElement>("#collage #board");
-     if (!board) throw new Error("No encuentro #board dentro de #collage en index.html");
-     return board;
+     return getElement<HTMLDivElement>("#collage #board");
 }
 
 

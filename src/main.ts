@@ -3,10 +3,11 @@ import { searchArtworks, PAGE_SIZE } from "./api";
 import type { RawArtwork } from "./api";
 import { toArtworks, summary, getTypes, filterByType, sortArtworks } from "./logic";
 import type { Artwork } from "./logic";
-import { showLoading, showError, showWarning, showArtworks, fillTypeOptions, setMoreButton, renderRooms, getElement } from "./render";
+import { showLoading, showError, showWarning, showArtworks, fillTypeOptions, setMoreButton, renderRooms } from "./render";
 import type { Room } from "./render";
 import { getFavorites, toggleFavorite } from "./favorites";
 import { renderCollage, saveCollage } from "./collage";
+import { getElement } from "./dom";
 
 // CONFIGURACIÓN
 const DEFAULT_QUERY = "monet";
@@ -40,6 +41,7 @@ let currentQuery = "";
 let currentArtworks: Artwork[] = [];
 let nextSkip = 0;
 let viewingCollection = false;
+let controller = new AbortController();
 
 
 
@@ -53,6 +55,7 @@ function update(): void {
 }
 
 function resetView(query: string, collection: boolean): void {
+     controller.abort();
      viewingCollection = collection;
      currentQuery = query;
      currentArtworks = [];
@@ -64,7 +67,9 @@ function resetView(query: string, collection: boolean): void {
 
 function addResults(raw: RawArtwork[]): void {
      nextSkip += raw.length;
-     currentArtworks = [...currentArtworks, ...toArtworks(raw)];
+     const existingIds = new Set(currentArtworks.map((a) => a.id));
+     const newArtworks = toArtworks(raw).filter((a) => !existingIds.has(a.id));
+     currentArtworks = [...currentArtworks, ...newArtworks];
      fillTypeOptions(getTypes(currentArtworks));
      update();
      setMoreButton(raw.length < PAGE_SIZE ? "hidden" : "ready");
@@ -78,7 +83,8 @@ async function load(query: string): Promise<void> {
      showLoading();
 
      try{
-          const raw = await searchArtworks(query, 0);
+          controller = new AbortController();
+          const raw = await searchArtworks(query, 0, controller.signal);
           if (query !== currentQuery) return;
           addResults(raw);
      } catch (error){
@@ -92,7 +98,8 @@ async function loadMore(): Promise<void> {
      setMoreButton("loading");
 
      try {
-          const raw = await searchArtworks(query, nextSkip);
+          controller = new AbortController();
+          const raw = await searchArtworks(query, nextSkip, controller.signal);
           if (query !== currentQuery) return;
           addResults(raw);
      } catch (error) {

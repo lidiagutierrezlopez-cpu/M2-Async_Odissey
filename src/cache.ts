@@ -1,7 +1,18 @@
-export function getCache<T>(key: string): T | null {
+interface Entry<T> {
+     savedAt: number;
+     value: T;
+}
+
+export function getCache<T>(key: string, maxAgeMs = Infinity): T | null {
      try {
           const saved = localStorage.getItem(key);
-          return saved ? (JSON.parse(saved) as T): null;
+          if (!saved) return null;
+
+          const entry = JSON.parse(saved) as Entry<T>;
+          if (typeof entry?.savedAt !== "number" || !("value" in entry)) return null;
+          if (Date.now() - entry.savedAt > maxAgeMs) return null;
+
+          return entry.value;
      } catch {
           return null;
      }
@@ -9,7 +20,8 @@ export function getCache<T>(key: string): T | null {
 
 export function setCache<T>(key: string, value: T): void {
      try {
-          localStorage.setItem(key, JSON.stringify(value));
+          const entry: Entry<T> = { savedAt: Date.now(), value };
+          localStorage.setItem(key, JSON.stringify(entry));
      } catch {
           // localStorage lleno o bloqueado
      }

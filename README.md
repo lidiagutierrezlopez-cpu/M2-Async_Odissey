@@ -3,45 +3,49 @@
 Galería web que permite explorar la colección del Museo de Arte de Cleveland a través de su API.
 
 ## Funcionalidades:
-- **Busqueda**: por artista, tema o título.
-- **Salas sugeridas**: botones con busquedas preparadas (Monet, Impresionismo, Paisajes...). 
+- **Búsqueda**: por artista, tema o título.
+- **Salas sugeridas**: botones con búsquedas preparadas (Monet, Impresionismo, Paisajes...). 
 - **Estados visibles**: carga, error y búsqueda sin resultado.
 - **Ordenación**: por relevancia, título o fecha, sin volver a pedir datos a la API.
-- **Filtro**: por tipo de la obra.
+- **Filtro**: por tipo de obra.
 - **Ficha de la obra**: al pulsar una obra se abre una ventana con la imagen grande, la técnica, el departamento y la descripción.
-- **Paginación**: se muestran solo 20 obras, y puedes cargar más con un botón.
+- **Paginación**: se muestran 20 obras, y puedes cargar más con un botón.
 - **Favoritos**: con el corazón de cada obra la guardas en tu colección, que se guarda en localStorage.
-- **Collage**: con tus favoritos puedes crear un collage, mover las obras, cambiarles el tamaño y ponerlas unas encima de otras. El collage se guarda en localStorage.
-- **Caché en localStorage**: las búsquedas ya hechas no se vuelven a pedir a la red.
-- **Imagen alternativa**: cuando no se puede cargar una image, salta una imagen alternativa.
+- **Collage**: con tus favoritos puedes crear un collage, mover las obras, cambiarles el tamaño sin deformarlas y ponerlas unas encima de otras. El collage se guarda en localStorage.
+- **Caché en localStorage**: las búsquedas ya hechas no se vuelven a pedir a la red durante 24 horas.
+- **Imagen alternativa**: cuando no se puede cargar una image, aparece un aviso en su lugar.
 - **Validación**: las búsquedas vacías no se envían y se muestra un aviso.
 
 ## Decisiones:
 ### Asincronía y manejo de errores
 - Todas las peticiones usan 'async/await' dentro de un 'try/catch'.
 - Se comprueba 'respuesta.ok', ya que 'fetch' no salta con errores HTTP.
-- Si se lanza una búsqueda nueva mientras otra se está pidiendo, la respuesta antigua se descarta y solo se muestra la última.
+- Si se lanza una búsqueda nueva mientras otra se está pidiendo, la petición antigua se cancela con 'AbortController'. Además, se comprueba que la respuesta corresponde a la búsqueda actual antes de mostrarla.
 - Un fallo al pedir más obras no borra las que ya se muestran, sino que aparece un aviso y se puede volver a inntentar.
 
 ### Transformación de datos
 - Los datos de la API se convierten en 'Artwork' para poder usar 'filter' y 'map'.
 - La ordenación usa 'toSorted()' para no mutar el array original y poder volver al orden de relevancia.
-- Los tipos únicos para el filtro se obtienen con un 'Set', y el resumen de artistas distintos con 'reduce'.
+- Los tipos únicos para el filtro y el número de artistas distintos se obtienen con un 'Set'.
 - Los títulos se ordenan con 'localeCompare(..., "es")' para que funcione con acentos y eñes.
+- En el collage se usa 'Object.fromEntries' para guardar las posiciones y 'reduce' para calcular qué obra está más arriba.
 
 ### Robustez
-- Si la respuesta no trae un array de obras, se muestra como una búsqueda vacía para no romper la app.
-- Las obras sin imagen se descartan, y se sustituye por un aviso.
-- Si una obra no tiene descripción, se prueban varios campos distintos.
-- El acceso a 'localStorage' está protegido con un 'try/catch', por lo que si los datos guardados están corruptos o el almacenamiento está lleno la app sigue funcionando sin caché.
+- Si la respuesta no trae un array de obras, se trata como una búsqueda vacía para no romper la app.
+- Las obras sin imagen se descartan, y si una imagen falla al cargar se sustituye por un aviso.
+- Las obras repetidas entre páginas se descartan comparando sus 'id'.
+- Si una obra no tiene descripción, se prueban varios campos distintos de la API.
+- El acceso a 'localStorage' está protegido con un 'try/catch', por lo que si los datos guardados están corruptos o el almacenamiento está lleno, la app sigue funcionando sin caché.
+- Los datos leídos de 'localStorage' se validan antes de usarlos.
 
 ### Seguridad
-- Todo el condenido que llega de la API se inserta con 'textContent', nunca con 'innerHTML', para evitar ataques XSS.
-- Algunas descripciones del museo traen HTML, y en vez de mostrarlo con 'innerHTML', se convierten en texto plano con 'DOMParser'.
+- Todo el contenido que llega de la API se inserta con 'textContent', nunca con 'innerHTML', para evitar ataques XSS.
+- Algunas descripciones del museo traen HTML, y en vez de mostrarlo con 'innerHTML' se convierten en texto plano con 'DOMParser'.
 
-### Caché, facoritos y collage
-- Cada página de cada búsqueda se guarda con una clave propia. Solo se guardan las respuestas correctas.
-- Los favoritos se guardan enteros, con todos sus atributos.
+### Caché, favoritos y collage
+- Cada página de cada búsqueda se guarda con una clave propia y la fecha en que se guardó. Despues de 24 horas caduca y se vuelve a pedir a la API
+- Solo se guardan las respuestas correctas.
+- Los favoritos se guardan enteros, con todos sus datos.
 - En el collage se guardan la posición, el ancho y la capa de cada obra. 
 
 ### Estilos
@@ -53,7 +57,7 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 Durante el proyecto he usado Claude como asistente para:
 - Obtener un esqueleto inicial del código con la estructura del proyecto.
 - Ayuda para añadir funcionalidades.
-- Revisar y arreglar errores en el codigo.
+- Revisar y arreglar errores en el código.
 - Reorganizar y simplificar el código.
 
-Todo fue revisado y entendido por mí. ME apoye en las DevTools para entender los errores y comprobar el funcionamiendo de la app.
+Todo fue revisado y entendido por mí. Me apoyé en las DevTools para entender los errores y comprobar el funcionamiendo de la app.

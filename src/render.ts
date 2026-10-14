@@ -1,4 +1,5 @@
 import type { Artwork } from "./logic";
+import { getElement } from "./dom";
 
 // TIPOS
 export interface Room {
@@ -48,7 +49,7 @@ export function showArtworks(
      text: string,
      favoriteIds: Set<number>,
      onToggleFavorite: OnToggleFavorite,
-     emptyText = "Ho hay obras para esta búsqueda.",
+     emptyText = "No hay obras para esta búsqueda.",
 ): void {
      if (list.length === 0){
           info.textContent = emptyText;
@@ -147,12 +148,6 @@ export function setMoreButton(state: "hidden" | "ready" | "loading"): void {
 
 
 // UTILIDADES
-export function getElement<T extends HTMLElement>(selector: string): T {
-     const element = document.querySelector<T>(selector);
-     if (!element) throw new Error(`No encuentro ${selector} en index.html`);
-     return element;
-}
-
 function create<K extends keyof HTMLElementTagNameMap>(tag: K, text = "", className = ""): HTMLElementTagNameMap[K] {
      const element = document.createElement(tag);
      if (text) element.textContent = text;

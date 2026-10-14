@@ -3,6 +3,7 @@ import { getCache, setCache } from "./cache";
 // CONFIGURACIÓN
 const BASE_URL = "https://openaccess-api.clevelandart.org/api/artworks/";
 export const PAGE_SIZE = 20;
+const CACHE_MAX_AGE = 24*60*60*1000;
 
 
 
@@ -28,14 +29,14 @@ export interface RawArtwork{
 
 
 // PETICIÓN
-export async function searchArtworks(query: string, skip: number): Promise<RawArtwork[]> {
+export async function searchArtworks(query: string, skip: number, signal?: AbortSignal): Promise<RawArtwork[]> {
      const cacheKey = `busqueda:${query.toLowerCase()}:${skip}`;
-     const cached = getCache<RawArtwork[]>(cacheKey);
-     if (cached) return cached;
+     const cached = getCache<RawArtwork[]>(cacheKey, CACHE_MAX_AGE);
+     if (Array.isArray(cached)) return cached;
 
      const params = new URLSearchParams({q: query, has_image: "1", limit: String(PAGE_SIZE), skip: String(skip)});
      
-     const response = await fetch(`${BASE_URL}?${params}`);
+     const response = await fetch(`${BASE_URL}?${params}`, { signal });
      if (!response.ok) throw new Error(`Error del servidor (HTTP ${response.status})`);
 
      const json = await response.json();
