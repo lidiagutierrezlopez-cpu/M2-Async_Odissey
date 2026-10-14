@@ -1,5 +1,6 @@
 import type { RawArtwork } from "./api";
 
+// MODELO PROPIO DE LA APP
 export interface Artwork{
      id: number;
      title: string;
@@ -7,14 +8,18 @@ export interface Artwork{
      date: string;
      year: number | null;
      type: string;
-     imageUrl: string;
      technique: string;
      department: string;
      description: string | null;
+     imageUrl: string;
 }
 
+
+
+// DE LA API AL MODELO PROPIO
 export function toArtworks(raw: RawArtwork[]): Artwork[] {
-     return raw.filter((a) => a.images?.web?.url)
+     return raw
+               .filter((a) => a.images?.web?.url)
                .map((a) => ({
                     id: a.id,
                     title: a.title ?? "Sin titulo",
@@ -22,13 +27,25 @@ export function toArtworks(raw: RawArtwork[]): Artwork[] {
                     date: a.creation_date ?? "Fecha desconocida",
                     year: a.creation_date_earliest ?? null,
                     type: a.type ?? "Otros",
-                    imageUrl: a.images?.web?.url ?? "",
                     technique: a.technique ?? "Técnica desconocida",
                     department: a.department ?? "Departamento desconocido",
                     description: toPlainText(a.description || a.wall_description || a.digital_description || a.did_you_know || a.fun_fact || null),
+                    imageUrl: a.images?.web?.url ?? "",
                }));
 }
 
+// Las descripciones vienen en HTML, con <br>, <i>, ... Lo convierto en texto plano
+function toPlainText(html: string | null): string | null {
+     if (!html) return null;
+     const withBreaks = html.replace(/<br\s*\/?>/gi, "\n");
+     const doc = new DOMParser().parseFromString(withBreaks, "text/html");
+     const text = doc.body.textContent?.trim() ?? "";
+     return text || null;
+}
+
+
+
+// OPERACIONES SOBRE LA LISTA
 export function summary(list: Artwork[]): string {
      const artists = list.reduce((set, acc) => set.add(acc.artist), new Set<string>());
      return `${list.length} obras de ${artists.size} artistas`;
@@ -52,10 +69,3 @@ export function sortArtworks(list: Artwork[], order: string): Artwork[] {
      return list;
 }
 
-function toPlainText(html: string | null): string | null {
-     if (!html) return null;
-     const withBreaks = html.replace(/<br\s*\/?>/gi, "\n");
-     const doc = new DOMParser().parseFromString(withBreaks, "text/html");
-     const text = doc.body.textContent?.trim() ?? "";
-     return text || null;
-}
