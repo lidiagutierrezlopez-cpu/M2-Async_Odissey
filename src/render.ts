@@ -1,42 +1,38 @@
 import type { Artwork } from "./logic";
 
-const gallery = document.querySelector<HTMLDivElement>("#gallery")!;
-const info = document.querySelector<HTMLParagraphElement>("#info")!;
-const typeSelect = document.querySelector<HTMLSelectElement>("#type")!;
-const moreButton = document.querySelector<HTMLButtonElement>("#more")!;
-const modal = document.querySelector<HTMLDialogElement>("#modal")!;
-const roomsNav = document.querySelector<HTMLElement>("#rooms");
-
+// TIPOS
 export interface Room {
      label: string;
      query: string;
 }
 
-export function fillTypeOptions(types: string[]): void {
-     const selected = typeSelect.value;
-     const options = ["all", ...types].map((type) => {
-          const option = document.createElement("option");
-          option.value = type;
-          option.textContent = type === "all" ? "Todos" : type;
-          return option;
-     });
-     typeSelect.replaceChildren(...options);
-     if (types.includes(selected)) typeSelect.value = selected;
-}
+type OnToggleFavorite = (art: Artwork) => void;
 
+
+
+// ELEMENTOS DE LA PÁGINA
+const info = getElement<HTMLParagraphElement>("#info");
+const gallery = getElement<HTMLDivElement>("#gallery");
+const typeSelect = getElement<HTMLSelectElement>("#type");
+const roomsNav = getElement<HTMLElement>("#rooms");
+const moreButton = getElement<HTMLButtonElement>("#more");
+const modal = getElement<HTMLDialogElement>("#modal");
+
+
+
+// ESTADOS DE CARGAR, ERROR Y AVISO
 export function showLoading(): void {
      info.textContent = "Cargando obras...";
      gallery.replaceChildren();
 }
 
 export function showError(message: string, onRetry: () => void): void {
+     const retry = create("button", "Reintentar");
+     retry.type = "button";
+     retry.addEventListener("click", onRetry);
+     
      info.textContent = `⚠️ ${message}`;
-
-     const button = document.createElement("button");
-     button.textContent = "Reintentar";
-     button.addEventListener("click", onRetry);
-     info.append(button)
-
+     info.append(retry)
      gallery.replaceChildren();
 }
 
@@ -44,7 +40,16 @@ export function showWarning(message: string): void{
      info.textContent = message;
 }
 
-export function showArtworks(list: Artwork[], text: string, favoriteIds: Set<number>, onToggleFavorite: (art: Artwork) => void, emptyText = "Ho hay obras para esta búsqueda."): void {
+
+
+// GALERÍA
+export function showArtworks(
+     list: Artwork[],
+     text: string,
+     favoriteIds: Set<number>,
+     onToggleFavorite: OnToggleFavorite,
+     emptyText = "Ho hay obras para esta búsqueda.",
+): void {
      if (list.length === 0){
           info.textContent = emptyText;
           gallery.replaceChildren();
@@ -54,94 +59,103 @@ export function showArtworks(list: Artwork[], text: string, favoriteIds: Set<num
      gallery.replaceChildren(...list.map((art) => createCard(art, favoriteIds.has(art.id), onToggleFavorite)));
 }
 
-function createCard(art: Artwork, isFavorite: boolean, onToggleFavorite: (art: Artwork) => void): HTMLElement {
-     const card = document.createElement("article");
+function createCard(art: Artwork, isFavorite: boolean, onToggleFavorite: OnToggleFavorite): HTMLElement {
      const img = createImage(art.imageUrl, art.title);
-     const title = document.createElement("h3");
-     const meta = document.createElement("p");
-     const heart = document.createElement("button");
-
      img.loading = "lazy";
-     title.textContent = art.title;
-     meta.textContent = `${art.artist} · ${art.date}`;
-     
+
+     const heart = create("button", isFavorite ? "❤️" : "🤍", "heart");
      heart.type = "button";
-     heart.className = "heart";
-     heart.textContent = isFavorite ? "❤️" : "🤍";
      heart.setAttribute("aria-label", isFavorite ? "Quitar de favoritos" : "Añadir a favoritos");
      heart.addEventListener("click", (evento) => {
           evento.stopPropagation();
           onToggleFavorite(art);
-     })
+     });
 
-     card.append(heart, img, title, meta);
+     const card = create("article");
+     card.append(heart, img, create("h3", art.title), create("p", `${art.artist} · ${art.date}`));
      card.addEventListener("click", () => openModal(art));
-
      return card;
 }
 
 function createImage(url: string, alt: string): HTMLImageElement {
-     const img = document.createElement("img");
+     const img = create("img");
      img.src = url;
      img.alt = alt;
-     img.addEventListener(
-          "error",
-          () => {
-               const fallback = document.createElement("div");
-               fallback.className = "img-fallback";
-               fallback.textContent = "Imagen no disponible";
-               img.replaceWith(fallback);
-          },
-          { once: true },
-     );
+     img.addEventListener("error", () => {
+          img.replaceWith(create("div", "Imagen no disponible", "img-fallback"));
+     }, { once: true });
      return img;
 }
 
-export function renderRooms(rooms: Room[], activeQuery: string, onPick: (query: string) => void): void {
-     const buttons = rooms.map((room) => {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "room";
-          button.textContent = room.label;
-          button.setAttribute("aria-pressed", String(room.query === activeQuery.toLowerCase()));
-          button.addEventListener("click", () => onPick(room.query));
-          return button;
-     });
-     roomsNav?.replaceChildren(...buttons);
-}
 
+
+// FICHA DE LA OBRA
 modal.addEventListener("click", (evento) => {
      if (evento.target === modal) modal.close();
 })
 
 function openModal(art: Artwork): void {
-     const content = document.createElement("div");
-     content.className = "modal-content";
-
-     const title = document.createElement("h2");
-     title.textContent = art.title;
-
-     const meta = document.createElement("p");
-     meta.textContent = `${art.artist} · ${art.date}`;
-
-     const details = document.createElement("p");
-     details.textContent = `${art.type} · ${art.technique} · ${art.department}`;
-
-     const description = document.createElement("p");
-     description.className = "description";
-     description.textContent = art.description ?? "Esta obra no tiene descripción.";
-
-     const close = document.createElement("button");
-     close.textContent = "Cerrar";
+     const close = create("button", "Cerrar");
+     close.type = "button";
      close.addEventListener("click", () => modal.close());
 
-     content.append(createImage(art.imageUrl, art.title), title, meta, details, description, close);
+     const content = create("div", "", "modal-content");
+     content.append(
+          createImage(art.imageUrl, art.title),
+          create("h2", art.title),
+          create("p", `${art.artist} · ${art.date}`),
+          create("p", `${art.type} · ${art.technique} · ${art.department}`),
+          create("p", art.description ?? "Esta obra no tiene descripción.", "description"),
+          close,
+     );
+
      modal.replaceChildren(content);
      modal.showModal();
+}
+
+
+
+// CONTROLES
+export function renderRooms(rooms: Room[], activeQuery: string, onPick: (query: string) => void): void {
+     const buttons = rooms.map((room) => {
+          const button = create("button", room.label, "room");
+          button.type = "button";
+          button.setAttribute("aria-pressed", String(room.query === activeQuery.toLowerCase()));
+          button.addEventListener("click", () => onPick(room.query));
+          return button;
+     });
+     roomsNav.replaceChildren(...buttons);
+}
+
+export function fillTypeOptions(types: string[]): void {
+     const selected = typeSelect.value;
+     const options = ["all", ...types].map((type) => {
+          const option = create("option", type === "all" ? "Todos" : type);
+          option.value = type;
+          return option;
+     });
+     typeSelect.replaceChildren(...options);
+     if (types.includes(selected)) typeSelect.value = selected;
 }
 
 export function setMoreButton(state: "hidden" | "ready" | "loading"): void {
      moreButton.hidden = state === "hidden";
      moreButton.disabled = state === "loading";
      moreButton.textContent = state === "loading" ? "Cargando..." : "Cargar más";
+}
+
+
+
+// UTILIDADES
+function getElement<T extends HTMLElement>(selector: string): T {
+     const element = document.querySelector<T>(selector);
+     if (!element) throw new Error(`No encuentro ${selector} en index.html`);
+     return element;
+}
+
+function create<K extends keyof HTMLElementTagNameMap>(tag: K, text = "", className = ""): HTMLElementTagNameMap[K] {
+     const element = document.createElement(tag);
+     if (text) element.textContent = text;
+     if (className) element.className = className;
+     return element;
 }
