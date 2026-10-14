@@ -25,7 +25,7 @@ export function toArtworks(raw: RawArtwork[]): Artwork[] {
                     imageUrl: a.images?.web?.url ?? "",
                     technique: a.technique ?? "Técnica desconocida",
                     department: a.department ?? "Departamento desconocido",
-                    description: a.description || a.wall_description || a.digital_description || a.did_you_know || a.fun_fact || null,
+                    description: toPlainText(a.description || a.wall_description || a.digital_description || a.did_you_know || a.fun_fact || null),
                }));
 }
 
@@ -50,4 +50,12 @@ export function sortArtworks(list: Artwork[], order: string): Artwork[] {
           return list.toSorted((a,b) => (a.year ?? Infinity) - (b.year ?? Infinity))
      }
      return list;
+}
+
+function toPlainText(html: string | null): string | null {
+     if (!html) return null;
+     const withBreaks = html.replace(/<br\s*\/?>/gi, "\n");
+     const doc = new DOMParser().parseFromString(withBreaks, "text/html");
+     const text = doc.body.textContent?.trim() ?? "";
+     return text || null;
 }

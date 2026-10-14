@@ -5,6 +5,12 @@ const info = document.querySelector<HTMLParagraphElement>("#info")!;
 const typeSelect = document.querySelector<HTMLSelectElement>("#type")!;
 const moreButton = document.querySelector<HTMLButtonElement>("#more")!;
 const modal = document.querySelector<HTMLDialogElement>("#modal")!;
+const roomsNav = document.querySelector<HTMLElement>("#rooms");
+
+export interface Room {
+     label: string;
+     query: string;
+}
 
 export function fillTypeOptions(types: string[]): void {
      const selected = typeSelect.value;
@@ -38,27 +44,37 @@ export function showWarning(message: string): void{
      info.textContent = message;
 }
 
-export function showArtworks(list: Artwork[], text: string): void {
+export function showArtworks(list: Artwork[], text: string, favoriteIds: Set<number>, onToggleFavorite: (art: Artwork) => void, emptyText = "Ho hay obras para esta búsqueda."): void {
      if (list.length === 0){
-          info.textContent = "No hay obras para esta búsqueda.";
+          info.textContent = emptyText;
           gallery.replaceChildren();
           return;
      }
      info.textContent = text;
-     gallery.replaceChildren(...list.map(createCard));
+     gallery.replaceChildren(...list.map((art) => createCard(art, favoriteIds.has(art.id), onToggleFavorite)));
 }
 
-function createCard(art: Artwork): HTMLElement {
+function createCard(art: Artwork, isFavorite: boolean, onToggleFavorite: (art: Artwork) => void): HTMLElement {
      const card = document.createElement("article");
      const img = createImage(art.imageUrl, art.title);
      const title = document.createElement("h3");
      const meta = document.createElement("p");
-     
+     const heart = document.createElement("button");
+
      img.loading = "lazy";
      title.textContent = art.title;
      meta.textContent = `${art.artist} · ${art.date}`;
+     
+     heart.type = "button";
+     heart.className = "heart";
+     heart.textContent = isFavorite ? "❤️" : "🤍";
+     heart.setAttribute("aria-label", isFavorite ? "Quitar de favoritos" : "Añadir a favoritos");
+     heart.addEventListener("click", (evento) => {
+          evento.stopPropagation();
+          onToggleFavorite(art);
+     })
 
-     card.append(img, title, meta);
+     card.append(heart, img, title, meta);
      card.addEventListener("click", () => openModal(art));
 
      return card;
@@ -81,6 +97,18 @@ function createImage(url: string, alt: string): HTMLImageElement {
      return img;
 }
 
+export function renderRooms(rooms: Room[], activeQuery: string, onPick: (query: string) => void): void {
+     const buttons = rooms.map((room) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "room";
+          button.textContent = room.label;
+          button.setAttribute("aria-pressed", String(room.query === activeQuery.toLowerCase()));
+          button.addEventListener("click", () => onPick(room.query));
+          return button;
+     });
+     roomsNav?.replaceChildren(...buttons);
+}
 
 modal.addEventListener("click", (evento) => {
      if (evento.target === modal) modal.close();

@@ -18,6 +18,7 @@ input {
 }
 
 article {
+     position: relative;
      cursor: pointer;
      background: #1d1a17;
      padding: .5rem;
@@ -72,6 +73,30 @@ p {
      display: none;
 }
 
+#collection {
+     margin-bottom: .5rem;
+}
+
+#rooms {
+     display: flex;
+     flex-wrap: wrap;
+     gap: .5rem;
+     margin: .8rem 0;
+}
+
+.room {
+     padding: .3rem .9rem;
+     border: 1px solid #3a342d;
+     border-radius: 999px;
+     background: none;
+     color: #a39a8f;
+     cursor: pointer;
+}
+.room[aria-pressed="true"] {
+     border-color: #c9a45c;
+     color: #c9a45c;
+}
+
 .img-fallback {
      aspect-ratio: 4 / 5;
      display: grid;
@@ -96,4 +121,18 @@ p {
 .description {
      color: #f2ece4;
      line-height: 1.5;
+     white-space: pre-line;
+}
+
+.heart {
+     position: absolute;
+     top: .9rem;
+     right: .9rem;
+     width: 2.2rem;
+     height: 2.2rem;
+     border: none;
+     border-radius: 50%;
+     background: rgba(0, 0, 0, 0.55);
+     font-size: 1rem;
+     cursor: pointer;
 }
