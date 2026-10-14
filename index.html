@@ -4,7 +4,7 @@
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>M2 - Async Odyssey</title>
-          <link rel="stylesheet" href="M1.css">
+          <dialog id="modal"></dialog>
           <script src="/src/main.ts" type="module"></script>
      </head>
      <body>
@@ -13,7 +13,22 @@
                <input id="input" type="search" placeholder="Busca un artista o tema...">
                <button type="submit">Buscar</button>
           </form>
+          <div id="controls">
+               <label>Ordenar
+                    <select id="sort">
+                         <option value="relevance">Relevancia</option>
+                         <option value="title">Título</option>
+                         <option value="date">Más antiguas primero</option>
+                    </select>
+               </label>
+               <label>Tipo
+                    <select id="type">
+                         <option value="all">Todos</option>
+                    </select>
+               </label>
+          </div>
           <p id="info"></p>
           <div id="gallery"></div>
+          
      </body>
 </html>

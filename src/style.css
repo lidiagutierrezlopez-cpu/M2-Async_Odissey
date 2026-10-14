@@ -18,9 +18,23 @@ input {
 }
 
 article {
+     cursor: pointer;
      background: #1d1a17;
      padding: .5rem;
      border-radius: 6px;
+}
+
+dialog {
+     width: 90vw;
+     max-width: 700px;
+     padding: 0;
+     border: none;
+     border-radius: 8px;
+     background: #1d1a17;
+     color: #f2ece4;
+}
+dialog::backdrop {
+     background: rgba(0, 0, 0, 0.75);
 }
 
 img {
@@ -43,4 +57,34 @@ p {
      display: grid;
      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
      gap: 1rem;
+}
+
+#info button {
+     margin-left: .5rem;
+}
+
+.img-fallback {
+     aspect-ratio: 4 / 5;
+     display: grid;
+     place-items: center;
+     background: #2a2520;
+     color: #a39a8f;
+     font-style: italic;
+}
+
+.modal-content {
+     padding: 1.5rem;
+}
+.modal-content img {
+     aspect-ratio: auto;
+     max-height: 60vh;
+     object-fit: contain;
+}
+.modal-content p {
+     margin: .5rem 0;
+}
+
+.description {
+     color: #f2ece4;
+     line-height: 1.5;
 }

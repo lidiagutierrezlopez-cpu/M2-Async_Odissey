@@ -4,8 +4,13 @@ export interface RawArtwork{
      id: number;
      title: string | null;
      creation_date: string | null;
+     creation_date_earliest: number | null;
+     type: string | null;
      creators: { description: string | null}[] | null;
      images: { web?: { url: string } } | null;
+     technique: string | null;
+     department: string | null;
+     wall_description: string | null;
 }
 
 const BASE_URL = "https://openaccess-api.clevelandart.org/api/artworks/";
