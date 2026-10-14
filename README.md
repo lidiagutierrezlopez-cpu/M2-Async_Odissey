@@ -4,14 +4,17 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 
 ## Funcionalidades:
 - **Busqueda**: por artista, tema o título.
+- **Salas sugeridas**: botones con busquedas preparadas (Monet, Impresionismo, Paisajes...). 
 - **Estados visibles**: carga, error y búsqueda sin resultado.
 - **Ordenación**: por relevancia, título o fecha, sin volver a pedir datos a la API.
 - **Filtro**: por tipo de la obra.
-- **Ficha de la obra**: cuando apretas la obra nos da información téctina, departamento y descripción.
+- **Ficha de la obra**: al pulsar una obra se abre una ventana con la imagen grande, la técnica, el departamento y la descripción.
 - **Paginación**: se muestran solo 20 obras, y puedes cargar más con un botón.
+- **Favoritos**: con el corazón de cada obra la guardas en tu colección, que se guarda en localStorage.
+- **Collage**: con tus favoritos puedes crear un collage, mover las obras, cambiarles el tamaño y ponerlas unas encima de otras. El collage se guarda en localStorage.
 - **Caché en localStorage**: las búsquedas ya hechas no se vuelven a pedir a la red.
 - **Imagen alternativa**: cuando no se puede cargar una image, salta una imagen alternativa.
-- **Validación**: las búsquedas vacías se validan.
+- **Validación**: las búsquedas vacías no se envían y se muestra un aviso.
 
 ## Decisiones:
 ### Asincronía y manejo de errores
@@ -32,9 +35,25 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 - Si una obra no tiene descripción, se prueban varios campos distintos.
 - El acceso a 'localStorage' está protegido con un 'try/catch', por lo que si los datos guardados están corruptos o el almacenamiento está lleno la app sigue funcionando sin caché.
 
+### Seguridad
+- Todo el condenido que llega de la API se inserta con 'textContent', nunca con 'innerHTML', para evitar ataques XSS.
+- Algunas descripciones del museo traen HTML, y en vez de mostrarlo con 'innerHTML', se convierten en texto plano con 'DOMParser'.
+
+### Caché, facoritos y collage
+- Cada página de cada búsqueda se guarda con una clave propia. Solo se guardan las respuestas correctas.
+- Los favoritos se guardan enteros, con todos sus atributos.
+- En el collage se guardan la posición, el ancho y la capa de cada obra. 
+
+### Estilos
+- Los colores están definidos como variables de CSS en ':root', así que cambiando unas pocas líneas cambia la paleta de toda la web.
+
+
+
 ## Uso de IA:
 Durante el proyecto he usado Claude como asistente para:
 - Obtener un esqueleto inicial del código con la estructura del proyecto.
 - Ayuda para añadir funcionalidades.
 - Revisar y arreglar errores en el codigo.
+- Reorganizar y simplificar el código.
+
 Todo fue revisado y entendido por mí. ME apoye en las DevTools para entender los errores y comprobar el funcionamiendo de la app.
