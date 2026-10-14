@@ -7,6 +7,13 @@
      --accent-text: #1d271e;
 }
 
+html {
+     scrollbar-color: var(--accent) var(--bg);
+}
+html:has(#collage[open]) {
+     overflow: hidden;
+}
+
 body {
      font-family: Georgia, serif;
      background: var(--bg);
