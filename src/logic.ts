@@ -24,8 +24,8 @@ export function toArtworks(raw: RawArtwork[]): Artwork[] {
                     type: a.type ?? "Otros",
                     imageUrl: a.images?.web?.url ?? "",
                     technique: a.technique ?? "Técnica desconocida",
-                    department: a.department ?? "Departamiento desconocido",
-                    description: a.wall_description ?? null,
+                    department: a.department ?? "Departamento desconocido",
+                    description: a.description || a.wall_description || a.digital_description || a.did_you_know || a.fun_fact || null,
                }));
 }
 

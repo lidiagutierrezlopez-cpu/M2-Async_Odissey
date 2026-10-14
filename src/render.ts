@@ -3,8 +3,11 @@ import type { Artwork } from "./logic";
 const gallery = document.querySelector<HTMLDivElement>("#gallery")!;
 const info = document.querySelector<HTMLParagraphElement>("#info")!;
 const typeSelect = document.querySelector<HTMLSelectElement>("#type")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more")!;
+const modal = document.querySelector<HTMLDialogElement>("#modal")!;
 
 export function fillTypeOptions(types: string[]): void {
+     const selected = typeSelect.value;
      const options = ["all", ...types].map((type) => {
           const option = document.createElement("option");
           option.value = type;
@@ -12,6 +15,7 @@ export function fillTypeOptions(types: string[]): void {
           return option;
      });
      typeSelect.replaceChildren(...options);
+     if (types.includes(selected)) typeSelect.value = selected;
 }
 
 export function showLoading(): void {
@@ -77,7 +81,6 @@ function createImage(url: string, alt: string): HTMLImageElement {
      return img;
 }
 
-const modal = document.querySelector<HTMLDialogElement>("#modal")!;
 
 modal.addEventListener("click", (evento) => {
      if (evento.target === modal) modal.close();
@@ -107,4 +110,10 @@ function openModal(art: Artwork): void {
      content.append(createImage(art.imageUrl, art.title), title, meta, details, description, close);
      modal.replaceChildren(content);
      modal.showModal();
+}
+
+export function setMoreButton(state: "hidden" | "ready" | "loading"): void {
+     moreButton.hidden = state === "hidden";
+     moreButton.disabled = state === "loading";
+     moreButton.textContent = state === "loading" ? "Cargando..." : "Cargar más";
 }

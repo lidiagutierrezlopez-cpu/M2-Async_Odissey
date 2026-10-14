@@ -11,16 +11,22 @@ export interface RawArtwork{
      technique: string | null;
      department: string | null;
      wall_description: string | null;
+     digital_description: string | null;
+     fun_fact: string | null;
+     description: string | null;
+     did_you_know: string | null;
 }
+
+export const PAGE_SIZE = 20;
 
 const BASE_URL = "https://openaccess-api.clevelandart.org/api/artworks/";
 
-export async function searchArtworks(query: string): Promise<RawArtwork[]> {
-     const cacheKey = `busqueda:${query.toLowerCase()}`;
+export async function searchArtworks(query: string, skip: number): Promise<RawArtwork[]> {
+     const cacheKey = `busqueda:${query.toLowerCase()}:${skip}`;
      const cached = getCache<RawArtwork[]>(cacheKey);
      if (cached) return cached;
 
-     const params = new URLSearchParams({q: query, has_image: "1", limit: "20"});
+     const params = new URLSearchParams({q: query, has_image: "1", limit: String(PAGE_SIZE), skip: String(skip)});
      const response = await fetch(`${BASE_URL}?${params}`);
      if (!response.ok) throw new Error(`Error del servidor (HTTP ${response.status})`);
 
@@ -28,5 +34,5 @@ export async function searchArtworks(query: string): Promise<RawArtwork[]> {
      const data: RawArtwork[] = Array.isArray(json.data) ? json.data : [];
      
      setCache(cacheKey, data);
-     return Array.isArray(json.data) ? json.data : [];
+     return data;
 }

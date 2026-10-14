@@ -63,6 +63,15 @@ p {
      margin-left: .5rem;
 }
 
+#more {
+     display: block;
+     margin: 1.5rem auto;
+     padding: .6rem 1.4rem;
+}
+#more[hidden] {
+     display: none;
+}
+
 .img-fallback {
      aspect-ratio: 4 / 5;
      display: grid;
