@@ -4,8 +4,6 @@
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>M2 - Async Odyssey</title>
-          <dialog id="modal"></dialog>
-          <script src="/src/main.ts" type="module"></script>
      </head>
      <body>
           <h1>El Museo en tu Bolsillo</h1>
@@ -34,5 +32,15 @@
           <div id="gallery"></div>
           <button id="more" type="button" hidden>Cargar más</button>
           
+          <dialog id="modal"></dialog>
+          <dialog id="collage">
+               <div class="collage-header">
+                    <h2>Mi collage</h2>
+                    <button id="close-collage" type="button">Cerrar</button>
+               </div>
+               <div id="board"></div>
+          </dialog>
+
+          <script src="/src/main.ts" type="module"></script>
      </body>
 </html>

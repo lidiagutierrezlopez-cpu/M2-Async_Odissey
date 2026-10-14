@@ -5,6 +5,7 @@ import type { Artwork } from "./logic";
 import { showLoading, showError, showWarning, showArtworks, fillTypeOptions, setMoreButton, renderRooms } from "./render";
 import type { Room } from "./render";
 import { getFavorites, toggleFavorite } from "./favorites";
+import { renderCollage } from "./collage";
 
 const form = document.querySelector<HTMLFormElement>("#form")!;
 const input = document.querySelector<HTMLInputElement>("#input")!;
@@ -13,6 +14,9 @@ const sortSelect = document.querySelector<HTMLSelectElement>("#sort")!;
 const typeSelect = document.querySelector<HTMLSelectElement>("#type")!;
 const moreButton = document.querySelector<HTMLButtonElement>("#more")!;
 const collectionButton = document.querySelector<HTMLButtonElement>("#collection")!;
+const collageDialog = document.querySelector<HTMLDialogElement>("#collage")!;
+const openCollageButton = document.querySelector<HTMLButtonElement>("#open-collage")!;
+const closeCollageButton = document.querySelector<HTMLButtonElement>("#close-collage")!;
 
 const ROOMS: Room[] = [
      { label: "Monet", query: "monet"},
@@ -124,5 +128,10 @@ sortSelect.addEventListener("change", update);
 typeSelect.addEventListener("change", update);
 moreButton.addEventListener("click", loadMore);
 collectionButton.addEventListener("click", showCollection);
+openCollageButton.addEventListener("click", () => {
+     renderCollage(getFavorites());
+     collageDialog.showModal();
+});
+closeCollageButton.addEventListener("click", () => collageDialog?.close())
 
 load("monet");
