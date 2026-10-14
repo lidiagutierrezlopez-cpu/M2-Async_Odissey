@@ -1,15 +1,23 @@
 import { getCache, setCache } from "./cache";
 
+// CONFIGURACIÓN
+const BASE_URL = "https://openaccess-api.clevelandart.org/api/artworks/";
+export const PAGE_SIZE = 20;
+
+
+
+// DATOS QUE DEVUELVE LA API
 export interface RawArtwork{
      id: number;
      title: string | null;
-     creation_date: string | null;
-     creation_date_earliest: number | null;
      type: string | null;
      creators: { description: string | null}[] | null;
-     images: { web?: { url: string } } | null;
+     creation_date: string | null;
+     creation_date_earliest: number | null;
      technique: string | null;
      department: string | null;
+     images: { web?: { url: string } } | null;
+     
      wall_description: string | null;
      digital_description: string | null;
      fun_fact: string | null;
@@ -17,16 +25,16 @@ export interface RawArtwork{
      did_you_know: string | null;
 }
 
-export const PAGE_SIZE = 20;
 
-const BASE_URL = "https://openaccess-api.clevelandart.org/api/artworks/";
 
+// PETICIÓN
 export async function searchArtworks(query: string, skip: number): Promise<RawArtwork[]> {
      const cacheKey = `busqueda:${query.toLowerCase()}:${skip}`;
      const cached = getCache<RawArtwork[]>(cacheKey);
      if (cached) return cached;
 
      const params = new URLSearchParams({q: query, has_image: "1", limit: String(PAGE_SIZE), skip: String(skip)});
+     
      const response = await fetch(`${BASE_URL}?${params}`);
      if (!response.ok) throw new Error(`Error del servidor (HTTP ${response.status})`);
 
