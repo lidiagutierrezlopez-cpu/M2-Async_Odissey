@@ -9,6 +9,7 @@ import { getFavorites, toggleFavorite } from "./favorites";
 import { renderCollage, saveCollage } from "./collage";
 import { getElement } from "./dom";
 import { initRender } from "./render";
+import { initTheme } from "./theme";
 
 // CONFIGURACIÓN
 const DEFAULT_QUERY = "monet";
@@ -181,4 +182,5 @@ closeCollageButton.addEventListener("click", () => collageDialog.close())
 collageDialog.addEventListener("close", saveCollage);
 
 initRender();
+initTheme(getElement<HTMLButtonElement>("#theme"));
 load(DEFAULT_QUERY);
