@@ -12,7 +12,7 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 - **Paginación**: se muestran 20 obras, y puedes cargar más con un botón.
 - **Favoritos**: con el corazón de cada obra la guardas en tu colección, que se guarda en localStorage.
 - **Collage**: con tus favoritos puedes crear un collage, mover las obras, cambiarles el tamaño sin deformarlas y ponerlas unas encima de otras. El collage se guarda en localStorage.
-- **Caché en localStorage**: las búsquedas ya hechas no se vuelven a pedir a la red durante 24 horas.
+- **Caché en localStorage**: las búsquedas ya hechas no se vuelven a pedir a la red durante 24 horas, y se indica cuando los resultados vienen de la caché.
 - **Imagen alternativa**: cuando no se puede cargar una image, aparece un aviso en su lugar.
 - **Validación**: las búsquedas vacías no se envían y se muestra un aviso.
 
@@ -36,7 +36,7 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 - Las obras repetidas entre páginas se descartan comparando sus 'id'.
 - Si una obra no tiene descripción, se prueban varios campos distintos de la API.
 - El acceso a 'localStorage' está protegido con un 'try/catch', por lo que si los datos guardados están corruptos o el almacenamiento está lleno, la app sigue funcionando sin caché.
-- Los datos leídos de 'localStorage' se validan antes de usarlos.
+- Los favoritos y las posiciones del collage leídos de 'localStorage' se validan antes de usarse.
 
 ### Seguridad
 - Todo el contenido que llega de la API se inserta con 'textContent', nunca con 'innerHTML', para evitar ataques XSS.
@@ -50,6 +50,7 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 
 ### Estilos
 - Los colores están definidos como variables de CSS en ':root', así que cambiando unas pocas líneas cambia la paleta de toda la web.
+- Las tarjetas se elevan con una transición al pasar el ratón por encima.
 
 
 
