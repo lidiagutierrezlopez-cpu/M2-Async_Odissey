@@ -15,6 +15,7 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 - **Caché en localStorage**: las búsquedas ya hechas no se vuelven a pedir a la red durante 24 horas, y se indica cuando los resultados vienen de la caché.
 - **Imagen alternativa**: cuando no se puede cargar una image, aparece un aviso en su lugar.
 - **Validación**: las búsquedas vacías no se envían y se muestra un aviso.
+- **Modo Oscuro**: se puede cambiar de modo oscuro a claro con un botón.
 
 ## Decisiones:
 ### Asincronía y manejo de errores
@@ -49,7 +50,7 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 - En el collage se guardan la posición, el ancho y la capa de cada obra. 
 
 ### Estilos
-- Los colores están definidos como variables de CSS en ':root', así que cambiando unas pocas líneas cambia la paleta de toda la web.
+- Los colores están definidos como variables de CSS en ':root' y ':root.dark', así que cambiando unas pocas líneas cambia la paleta de toda la web.
 - Las tarjetas se elevan con una transición al pasar el ratón por encima.
 
 
