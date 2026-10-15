@@ -1,6 +1,6 @@
 import "./style.css";
 import { searchArtworks, PAGE_SIZE } from "./api";
-import type { RawArtwork } from "./api";
+import type { SearchResult } from "./api";
 import { toArtworks, summary, getTypes, filterByType, sortArtworks } from "./logic";
 import type { Artwork } from "./logic";
 import { showLoading, showError, showWarning, showArtworks, fillTypeOptions, setMoreButton, renderRooms } from "./render";
@@ -8,6 +8,7 @@ import type { Room } from "./render";
 import { getFavorites, toggleFavorite } from "./favorites";
 import { renderCollage, saveCollage } from "./collage";
 import { getElement } from "./dom";
+import { initRender } from "./render";
 
 // CONFIGURACIÓN
 const DEFAULT_QUERY = "monet";
@@ -42,6 +43,7 @@ let currentArtworks: Artwork[] = [];
 let nextSkip = 0;
 let viewingCollection = false;
 let controller = new AbortController();
+let fromCache = false;
 
 
 
@@ -51,7 +53,8 @@ function update(): void {
      const sorted = sortArtworks(filtered, sortSelect.value);
      const favoriteIds = new Set(getFavorites().map((a) => a.id));
      const emptyText = viewingCollection ? "Tu colección está vacía. Pulsa 🤍 en una obra para guardarla." : "No hay obras para esta búsqueda.";
-     showArtworks(sorted, summary(sorted), favoriteIds, onToggleFavorite, emptyText);
+     const text = summary(sorted) + (fromCache && !viewingCollection ? " · desde caché": "");
+     showArtworks(sorted, text, favoriteIds, onToggleFavorite, emptyText);
 }
 
 function resetView(query: string, collection: boolean): void {
@@ -61,18 +64,20 @@ function resetView(query: string, collection: boolean): void {
      currentArtworks = [];
      nextSkip = 0;
      typeSelect.value = "all";
+     fromCache = false;
      renderRooms(ROOMS, query, pickRoom);
      setMoreButton("hidden");
 }
 
-function addResults(raw: RawArtwork[]): void {
-     nextSkip += raw.length;
+function addResults(result: SearchResult): void {
+     fromCache = result.fromCache;
+     nextSkip += result.artworks.length;
      const existingIds = new Set(currentArtworks.map((a) => a.id));
-     const newArtworks = toArtworks(raw).filter((a) => !existingIds.has(a.id));
+     const newArtworks = toArtworks(result.artworks).filter((a) => !existingIds.has(a.id));
      currentArtworks = [...currentArtworks, ...newArtworks];
      fillTypeOptions(getTypes(currentArtworks));
      update();
-     setMoreButton(raw.length < PAGE_SIZE ? "hidden" : "ready");
+     setMoreButton(result.artworks.length < PAGE_SIZE ? "hidden" : "ready");
 }
 
 
@@ -84,11 +89,11 @@ async function load(query: string): Promise<void> {
 
      try{
           controller = new AbortController();
-          const raw = await searchArtworks(query, 0, controller.signal);
+          const result = await searchArtworks(query, 0, controller.signal);
           if (query !== currentQuery) return;
-          addResults(raw);
+          addResults(result);
      } catch (error){
-          if(query !== currentQuery) return;
+          if(isAbortError(error) || query !== currentQuery) return;
           showError(errorMessage(error), () => load(query));
      }
 }
@@ -98,12 +103,13 @@ async function loadMore(): Promise<void> {
      setMoreButton("loading");
 
      try {
+          controller.abort();
           controller = new AbortController();
-          const raw = await searchArtworks(query, nextSkip, controller.signal);
+          const result = await searchArtworks(query, nextSkip, controller.signal);
           if (query !== currentQuery) return;
-          addResults(raw);
+          addResults(result);
      } catch (error) {
-          if (query !== currentQuery) return;
+          if(isAbortError(error) || query !== currentQuery) return;
           showWarning(`No se pudieron cargar más obras. ${errorMessage(error)}`);
           setMoreButton("ready");
      }
@@ -158,6 +164,10 @@ function errorMessage(error: unknown): string {
      return error instanceof Error ? error.message: "Error desconocido";
 }
 
+function isAbortError(error: unknown): boolean {
+     return error instanceof DOMException && error.name === "AbortError";
+}
+
 
 
 // EVENTOS
@@ -170,4 +180,5 @@ openCollageButton.addEventListener("click", openCollage);
 closeCollageButton.addEventListener("click", () => collageDialog.close())
 collageDialog.addEventListener("close", saveCollage);
 
+initRender();
 load(DEFAULT_QUERY);

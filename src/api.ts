@@ -26,13 +26,19 @@ export interface RawArtwork{
      did_you_know: string | null;
 }
 
+// DE DÓNDE VIENEN LOS DATOS
+export interface SearchResult{
+     artworks: RawArtwork[];
+     fromCache: boolean;
+}
+
 
 
 // PETICIÓN
-export async function searchArtworks(query: string, skip: number, signal?: AbortSignal): Promise<RawArtwork[]> {
+export async function searchArtworks(query: string, skip: number, signal?: AbortSignal): Promise<SearchResult> {
      const cacheKey = `busqueda:${query.toLowerCase()}:${skip}`;
      const cached = getCache<RawArtwork[]>(cacheKey, CACHE_MAX_AGE);
-     if (Array.isArray(cached)) return cached;
+     if (Array.isArray(cached)) return { artworks: cached, fromCache: true };
 
      const params = new URLSearchParams({q: query, has_image: "1", limit: String(PAGE_SIZE), skip: String(skip)});
      
@@ -43,5 +49,5 @@ export async function searchArtworks(query: string, skip: number, signal?: Abort
      const data: RawArtwork[] = Array.isArray(json.data) ? json.data : [];
      
      setCache(cacheKey, data);
-     return data;
+     return { artworks: data, fromCache: false};
 }

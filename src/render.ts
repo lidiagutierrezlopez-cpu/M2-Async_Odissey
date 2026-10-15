@@ -12,13 +12,25 @@ type OnToggleFavorite = (art: Artwork) => void;
 
 
 // ELEMENTOS DE LA PÁGINA
-const info = getElement<HTMLParagraphElement>("#info");
-const gallery = getElement<HTMLDivElement>("#gallery");
-const typeSelect = getElement<HTMLSelectElement>("#type");
-const roomsNav = getElement<HTMLElement>("#rooms");
-const moreButton = getElement<HTMLButtonElement>("#more");
-const modal = getElement<HTMLDialogElement>("#modal");
+let info: HTMLParagraphElement;
+let gallery: HTMLDivElement;
+let typeSelect: HTMLSelectElement;
+let roomsNav: HTMLElement;
+let moreButton: HTMLButtonElement;
+let modal: HTMLDialogElement;
 
+export function initRender(): void {
+     info = getElement("#info");
+     gallery = getElement("#gallery");
+     typeSelect = getElement("#type");
+     roomsNav = getElement("#rooms");
+     moreButton = getElement("#more");
+     modal = getElement("#modal");
+
+     modal.addEventListener("click", (evento) => {
+          if (evento.target === modal) modal.close();
+     })
+}
 
 
 // ESTADOS DE CARGAR, ERROR Y AVISO
@@ -91,10 +103,6 @@ function createImage(url: string, alt: string): HTMLImageElement {
 
 
 // FICHA DE LA OBRA
-modal.addEventListener("click", (evento) => {
-     if (evento.target === modal) modal.close();
-})
-
 function openModal(art: Artwork): void {
      const close = create("button", "Cerrar");
      close.type = "button";

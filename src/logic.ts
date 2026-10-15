@@ -47,7 +47,7 @@ function toPlainText(html: string | null): string | null {
 
 // OPERACIONES SOBRE LA LISTA
 export function summary(list: Artwork[]): string {
-     const artists = list.reduce((set, acc) => set.add(acc.artist), new Set<string>());
+     const artists = new Set(list.map((a) => a.artist));
      return `${list.length} obras de ${artists.size} artistas`;
 }
 

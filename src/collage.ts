@@ -28,7 +28,7 @@ export function renderCollage(artworks: Artwork[]): void {
           return;
      }
 
-     const layout = getCache<Layout>(STORAGE_KEY) ?? {};
+     const layout = getLayout();
      topZ = Object.values(layout).reduce((max, piece) => Math.max(max, piece.z), 1);
      board.replaceChildren(...artworks.map((art, index) => createPiece(art, layout[art.id] ?? defaultLayout(index))));
 }
@@ -95,6 +95,22 @@ function readLayout(piece: HTMLElement): PieceLayout {
           z: Number(piece.style.zIndex) || 1,
      };
 }
+
+function isPieceLayout(value: unknown): value is PieceLayout {
+     if (typeof value !== "object" || value === null) return false;
+     const p = value as Record<string, unknown>;
+     return ["left", "top", "width", "z"].every((key) => typeof p[key] === "number");
+}
+
+function getLayout(): Layout {
+     const saved = getCache<Record<string, unknown>>(STORAGE_KEY) ?? {};
+     const valid = Object.entries(saved).filter(
+          (entry): entry is [string, PieceLayout] => isPieceLayout(entry[1]),
+     );
+     return Object.fromEntries(valid);
+}
+
+
 
 // ARRASTRAR
 function makeDraggable(piece: HTMLElement): void {
