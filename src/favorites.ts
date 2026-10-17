@@ -1,4 +1,4 @@
-import { getCache, setCache } from "./cache";
+import { readStorage, writeStorage } from "./storage";
 import type { Artwork } from "./logic";
 
 const STORAGE_KEY = "favoritos";
@@ -11,7 +11,7 @@ function isArtwork(value: unknown): value is Artwork{
 }
 
 export function getFavorites(): Artwork[] {
-     const saved = getCache<Artwork[]>(STORAGE_KEY);
+     const saved = readStorage(STORAGE_KEY);
      return Array.isArray(saved) ? saved.filter(isArtwork) : [];
 }
 
@@ -19,5 +19,5 @@ export function toggleFavorite(art: Artwork): void {
      const favorites = getFavorites();
      const exists = favorites.some((a) => a.id === art.id);
      const updated = exists ? favorites.filter((a) => a.id !== art.id) : [...favorites, art];
-     setCache(STORAGE_KEY, updated);
+     writeStorage(STORAGE_KEY, updated);
 }

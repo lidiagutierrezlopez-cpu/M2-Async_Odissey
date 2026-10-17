@@ -12,31 +12,21 @@ type OnToggleFavorite = (art: Artwork) => void;
 
 
 // ELEMENTOS DE LA PÁGINA
-let info: HTMLParagraphElement;
-let gallery: HTMLDivElement;
-let typeSelect: HTMLSelectElement;
-let roomsNav: HTMLElement;
-let moreButton: HTMLButtonElement;
-let modal: HTMLDialogElement;
-
-export function initRender(): void {
-     info = getElement("#info");
-     gallery = getElement("#gallery");
-     typeSelect = getElement("#type");
-     roomsNav = getElement("#rooms");
-     moreButton = getElement("#more");
-     modal = getElement("#modal");
-
-     modal.addEventListener("click", (evento) => {
-          if (evento.target === modal) modal.close();
-     })
+const dom = {
+     info: () => getElement<HTMLParagraphElement>("#info"),
+     gallery: () => getElement<HTMLDivElement>("#gallery"),
+     typeSelect: () => getElement<HTMLSelectElement>("#type"),
+     roomsNav: () => getElement<HTMLElement>("#rooms"),
+     moreButton: () => getElement<HTMLButtonElement>("#more"),
+     modal: () => getElement<HTMLDialogElement>("#modal"),
 }
+
 
 
 // ESTADOS DE CARGAR, ERROR Y AVISO
 export function showLoading(): void {
-     info.textContent = "Cargando obras...";
-     gallery.replaceChildren();
+     dom.info().replaceChildren(create("span", "", "spinner"), "Cargando obras...");
+     dom.gallery().replaceChildren();
 }
 
 export function showError(message: string, onRetry: () => void): void {
@@ -44,13 +34,14 @@ export function showError(message: string, onRetry: () => void): void {
      retry.type = "button";
      retry.addEventListener("click", onRetry);
      
+     const info = dom.info();
      info.textContent = `⚠️ ${message}`;
      info.append(retry)
-     gallery.replaceChildren();
+     dom.gallery().replaceChildren();
 }
 
 export function showWarning(message: string): void{
-     info.textContent = message;
+     dom.info().textContent = message;
 }
 
 
@@ -63,6 +54,9 @@ export function showArtworks(
      onToggleFavorite: OnToggleFavorite,
      emptyText = "No hay obras para esta búsqueda.",
 ): void {
+     const info = dom.info();
+     const gallery = dom.gallery();
+
      if (list.length === 0){
           info.textContent = emptyText;
           gallery.replaceChildren();
@@ -104,6 +98,9 @@ function createImage(url: string, alt: string): HTMLImageElement {
 
 // FICHA DE LA OBRA
 function openModal(art: Artwork): void {
+     const modal = dom.modal();
+     modal.addEventListener("click", closeOnBackdrop);
+
      const close = create("button", "Cerrar");
      close.type = "button";
      close.addEventListener("click", () => modal.close());
@@ -122,6 +119,10 @@ function openModal(art: Artwork): void {
      modal.showModal();
 }
 
+function closeOnBackdrop (evento: MouseEvent): void {
+     const modal = evento.currentTarget as HTMLDialogElement;
+     if (evento.target === modal) modal.close();
+}
 
 
 // CONTROLES
@@ -133,10 +134,11 @@ export function renderRooms(rooms: Room[], activeQuery: string, onPick: (query: 
           button.addEventListener("click", () => onPick(room.query));
           return button;
      });
-     roomsNav.replaceChildren(...buttons);
+     dom.roomsNav().replaceChildren(...buttons);
 }
 
 export function fillTypeOptions(types: string[]): void {
+     const typeSelect = dom.typeSelect();
      const selected = typeSelect.value;
      const options = ["all", ...types].map((type) => {
           const option = create("option", type === "all" ? "Todos" : type);
@@ -148,6 +150,7 @@ export function fillTypeOptions(types: string[]): void {
 }
 
 export function setMoreButton(state: "hidden" | "ready" | "loading"): void {
+     const moreButton = dom.moreButton();
      moreButton.hidden = state === "hidden";
      moreButton.disabled = state === "loading";
      moreButton.textContent = state === "loading" ? "Cargando..." : "Cargar más";

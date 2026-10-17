@@ -43,6 +43,23 @@ header {
      margin-bottom: 1rem;
 }
 
+.spinner {
+     display: inline-block;
+     width: 1em;
+     height: 1em;
+     margin-right: .5rem;
+     border: 2px solid var(--muted-text);
+     border-top-color: transparent;
+     border-radius: 50%;
+     vertical-align: -.15em;
+     animation: spin .8s linear infinite;
+}
+@keyframes spin {
+     to {
+          transform: rotate(360deg);
+     }
+}
+
 /* CONTROLES */
 button, input, select {
      font: inherit;
@@ -135,7 +152,7 @@ article {
      background: var(--surface);
      padding: .5rem;
      border-radius: 6px;
-     transform: transform .2s, box-shadow .2s;
+     transition: transform .2s, box-shadow .2s;
 }
 article:hover {
      transform: translateY(-4px);

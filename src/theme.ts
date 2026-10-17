@@ -1,15 +1,15 @@
-import { getCache, setCache } from "./cache";
+import { readStorage, writeStorage } from "./storage";
 
 const STORAGE_KEY = "dark-mode";
 
 export function initTheme(button: HTMLButtonElement): void {
-     const saved = getCache<unknown>(STORAGE_KEY);
+     const saved = readStorage(STORAGE_KEY);
      applyTheme(button, typeof saved === "boolean" ? saved : false);
 
      button.addEventListener("click", () => {
           const dark = !document.documentElement.classList.contains("dark");
           applyTheme(button, dark);
-          setCache(STORAGE_KEY, dark);
+          writeStorage(STORAGE_KEY, dark);
      })
 }
 

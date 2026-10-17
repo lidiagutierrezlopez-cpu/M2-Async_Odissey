@@ -18,20 +18,23 @@ export interface Artwork{
 
 // DE LA API AL MODELO PROPIO
 export function toArtworks(raw: RawArtwork[]): Artwork[] {
-     return raw
-               .filter((a) => a.images?.web?.url)
-               .map((a) => ({
-                    id: a.id,
-                    title: a.title ?? "Sin titulo",
-                    artist: a.creators?.[0]?.description ?? "Artista desconocido",
-                    date: a.creation_date ?? "Fecha desconocida",
-                    year: a.creation_date_earliest ?? null,
-                    type: a.type ?? "Otros",
-                    technique: a.technique ?? "Técnica desconocida",
-                    department: a.department ?? "Departamento desconocido",
-                    description: toPlainText(a.description || a.wall_description || a.digital_description || a.did_you_know || a.fun_fact || null),
-                    imageUrl: a.images?.web?.url ?? "",
-               }));
+     return raw.flatMap((a) => {
+          const imageUrl = a.images?.web?.url;
+          if (!imageUrl) return [];
+
+          return [{
+               id: a.id,
+               title: a.title ?? "Sin título",
+               artist: a.creators?.[0]?.description ?? "Artista desconocido",
+               date: a.creation_date ?? "Fecha desconocida",
+               year: a.creation_date_earliest ?? null,
+               type: a.type ?? "Otros",
+               technique: a.technique ?? "Técnica desconocida",
+               department: a.department ?? "Departamento desconocido",
+               description: toPlainText(a.description || a.wall_description || a.digital_description || a.did_you_know || a.fun_fact || null),
+               imageUrl,
+          }];
+     });
 }
 
 // Las descripciones vienen en HTML, con <br>, <i>, ... Lo convierto en texto plano
@@ -52,7 +55,7 @@ export function summary(list: Artwork[]): string {
 }
 
 export function getTypes(list: Artwork[]): string[] {
-     return [...new Set(list.map((a) => a.type))].toSorted();
+     return [...new Set(list.map((a) => a.type))].toSorted((a, b) => a.localeCompare(b, "es"));
 }
 
 export function filterByType(list: Artwork[], type: string): Artwork[] {

@@ -22,7 +22,7 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 - Todas las peticiones usan 'async/await' dentro de un 'try/catch'.
 - Se comprueba 'respuesta.ok', ya que 'fetch' no salta con errores HTTP.
 - Si se lanza una búsqueda nueva mientras otra se está pidiendo, la petición antigua se cancela con 'AbortController'. Además, se comprueba que la respuesta corresponde a la búsqueda actual antes de mostrarla.
-- Un fallo al pedir más obras no borra las que ya se muestran, sino que aparece un aviso y se puede volver a inntentar.
+- Un fallo al pedir más obras no borra las que ya se muestran, sino que aparece un aviso y se puede volver a intentar.
 
 ### Transformación de datos
 - Los datos de la API se convierten en 'Artwork' para poder usar 'filter' y 'map'.
@@ -44,7 +44,7 @@ Galería web que permite explorar la colección del Museo de Arte de Cleveland a
 - Algunas descripciones del museo traen HTML, y en vez de mostrarlo con 'innerHTML' se convierten en texto plano con 'DOMParser'.
 
 ### Caché, favoritos y collage
-- Cada página de cada búsqueda se guarda con una clave propia y la fecha en que se guardó. Despues de 24 horas caduca y se vuelve a pedir a la API
+- Cada página de cada búsqueda se guarda con una clave propia y la fecha en que se guardó. Después de 24 horas caduca y se vuelve a pedir a la API
 - Solo se guardan las respuestas correctas.
 - Los favoritos se guardan enteros, con todos sus datos.
 - En el collage se guardan la posición, el ancho y la capa de cada obra. 
@@ -62,4 +62,4 @@ Durante el proyecto he usado Claude como asistente para:
 - Revisar y arreglar errores en el código.
 - Reorganizar y simplificar el código.
 
-Todo fue revisado y entendido por mí. Me apoyé en las DevTools para entender los errores y comprobar el funcionamiendo de la app.
+Todo fue revisado y entendido por mí. Me apoyé en las DevTools para entender los errores y comprobar el funcionamiento de la app.

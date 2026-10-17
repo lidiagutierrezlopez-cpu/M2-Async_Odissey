@@ -4,7 +4,7 @@ import { getCache, setCache } from "./cache";
 const BASE_URL = "https://openaccess-api.clevelandart.org/api/artworks/";
 export const PAGE_SIZE = 20;
 const CACHE_MAX_AGE = 24*60*60*1000;
-
+const TIMEOUT_MS = 10_000;
 
 
 // DATOS QUE DEVUELVE LA API
@@ -40,14 +40,40 @@ export async function searchArtworks(query: string, skip: number, signal?: Abort
      const cached = getCache<RawArtwork[]>(cacheKey, CACHE_MAX_AGE);
      if (Array.isArray(cached)) return { artworks: cached, fromCache: true };
 
-     const params = new URLSearchParams({q: query, has_image: "1", limit: String(PAGE_SIZE), skip: String(skip)});
+     const params = new URLSearchParams({
+          q: query,
+          has_image: "1",
+          limit: String(PAGE_SIZE),
+          skip: String(skip)
+     });
      
-     const response = await fetch(`${BASE_URL}?${params}`, { signal });
-     if (!response.ok) throw new Error(`Error del servidor (HTTP ${response.status})`);
+     const json = await fetchJSON(`${BASE_URL}?${params}`, signal)
+     const data = (json as {data?: unknown} | null)?.data;
+     const artworks: RawArtwork[] = Array.isArray(data) ? data : [];
 
-     const json = await response.json();
-     const data: RawArtwork[] = Array.isArray(json.data) ? json.data : [];
-     
-     setCache(cacheKey, data);
-     return { artworks: data, fromCache: false};
+     if (artworks.length > 0) setCache(cacheKey, artworks);
+     return { artworks, fromCache: false};
+}
+
+async function fetchJSON (url: string, signal?: AbortSignal): Promise<unknown> {
+     const timeout = AbortSignal.timeout(TIMEOUT_MS);
+     const finalSignal = signal ? AbortSignal.any([signal, timeout]): timeout;
+
+     let respuesta: Response;
+     try {
+          respuesta = await fetch(url, {signal: finalSignal});
+     } catch (error) {
+          if (signal?.aborted) throw error;
+          if (timeout.aborted) {
+               throw new Error ("El museo está tardando demasiado en responder.", {cause: error});
+          }
+          throw new Error("No hay conexión con el museo.", {cause: error});
+     }
+     if (!respuesta.ok) throw new Error(`El museo respondió con un error (HTTP ${respuesta.status}).`);
+
+     try {
+          return await respuesta.json();
+     } catch (error){
+          throw new Error("El museo ha devuelto una respuesta que no se puede leer.", {cause: error});
+     }
 }

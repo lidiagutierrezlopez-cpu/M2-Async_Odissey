@@ -8,7 +8,6 @@ import type { Room } from "./render";
 import { getFavorites, toggleFavorite } from "./favorites";
 import { renderCollage, saveCollage } from "./collage";
 import { getElement } from "./dom";
-import { initRender } from "./render";
 import { initTheme } from "./theme";
 
 // CONFIGURACIÓN
@@ -43,8 +42,9 @@ let currentQuery = "";
 let currentArtworks: Artwork[] = [];
 let nextSkip = 0;
 let viewingCollection = false;
-let controller = new AbortController();
 let fromCache = false;
+let controller = new AbortController();
+const moreController = new AbortController();
 
 
 
@@ -59,13 +59,14 @@ function update(): void {
 }
 
 function resetView(query: string, collection: boolean): void {
-     controller.abort();
      viewingCollection = collection;
      currentQuery = query;
      currentArtworks = [];
      nextSkip = 0;
      typeSelect.value = "all";
      fromCache = false;
+     controller.abort();
+     moreController.abort();
      renderRooms(ROOMS, query, pickRoom);
      setMoreButton("hidden");
 }
@@ -106,7 +107,7 @@ async function loadMore(): Promise<void> {
      try {
           controller.abort();
           controller = new AbortController();
-          const result = await searchArtworks(query, nextSkip, controller.signal);
+          const result = await searchArtworks(query, nextSkip, moreController.signal);
           if (query !== currentQuery) return;
           addResults(result);
      } catch (error) {
@@ -181,6 +182,5 @@ openCollageButton.addEventListener("click", openCollage);
 closeCollageButton.addEventListener("click", () => collageDialog.close())
 collageDialog.addEventListener("close", saveCollage);
 
-initRender();
 initTheme(getElement<HTMLButtonElement>("#theme"));
 load(DEFAULT_QUERY);
