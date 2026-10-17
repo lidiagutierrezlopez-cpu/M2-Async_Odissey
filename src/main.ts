@@ -44,7 +44,7 @@ let nextSkip = 0;
 let viewingCollection = false;
 let fromCache = false;
 let controller = new AbortController();
-const moreController = new AbortController();
+let moreController = new AbortController();
 
 
 
@@ -105,8 +105,8 @@ async function loadMore(): Promise<void> {
      setMoreButton("loading");
 
      try {
-          controller.abort();
-          controller = new AbortController();
+          moreController.abort();
+          moreController = new AbortController();
           const result = await searchArtworks(query, nextSkip, moreController.signal);
           if (query !== currentQuery) return;
           addResults(result);
